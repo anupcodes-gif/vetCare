@@ -1,0 +1,15 @@
+const express = require('express');
+const router = express.Router();
+const { bookAppointment, getMyAppointments, updateAppointmentStatus, addAppointmentReport } = require('../controllers/appointmentController');
+const { protect, authorize } = require('../middleware/authMiddleware');
+
+router.use(protect);
+
+router.route('/')
+  .post(bookAppointment)
+  .get(getMyAppointments);
+
+router.put('/:id/status', authorize('Admin'), updateAppointmentStatus);
+router.put('/:id/report', authorize('Admin'), addAppointmentReport);
+
+module.exports = router;
