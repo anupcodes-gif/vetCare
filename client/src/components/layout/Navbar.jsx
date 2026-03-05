@@ -79,7 +79,6 @@ const Navbar = () => {
           <PawPrint size={26} /> VetCare
         </Link>
 
-        
         <button
           onClick={toggleMenu}
           style={{
@@ -93,7 +92,6 @@ const Navbar = () => {
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
 
-        
         <div
           style={{
             display: isOpen ? 'none' : 'flex',
@@ -176,7 +174,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      
       {isOpen && (
         <div
           style={{

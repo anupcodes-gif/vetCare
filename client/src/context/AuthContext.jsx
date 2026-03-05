@@ -44,7 +44,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(data));
       return { success: true, user: data };
     } catch (error) {
-      return { success: false, message: error.response?.data?.message || 'Google login failed' };
+      const errorMsg = error.response?.data?.details || error.response?.data?.message || 'Google login failed';
+      console.error('Google Login Error:', error.response?.data || error.message);
+      return { success: false, message: errorMsg };
     }
   };
 

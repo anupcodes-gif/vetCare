@@ -10,13 +10,16 @@ const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
-    const userExists = await User.findOne({ where: { email } });
-
-    if (userExists) {
-      return res.status(400).json({ success: false, message: 'User already exists' });
+    const emailExists = await User.findOne({ where: { email } });
+    if (emailExists) {
+      return res.status(400).json({ success: false, message: 'Email already exists' });
     }
 
-    
+    const usernameExists = await User.findOne({ where: { username } });
+    if (usernameExists) {
+      return res.status(400).json({ success: false, message: 'Username already exists' });
+    }
+
     const userRole = await Role.findOne({ where: { name: 'User' } });
 
     const user = await User.create({
@@ -39,6 +42,10 @@ const registerUser = async (req, res) => {
       res.status(400).json({ success: false, message: 'Invalid user data' });
     }
   } catch (error) {
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({ success: false, message: 'Username or email already exists' });
+    }
+    console.error('Register error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

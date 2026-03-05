@@ -25,8 +25,11 @@ const googleLogin = async (req, res) => {
     if (!user) {
       
       const userRole = await Role.findOne({ where: { name: 'User' } });
+      const baseUsername = name ? name.replace(/\s+/g, '').toLowerCase() : email.split('@')[0];
+      const uniqueUsername = `${baseUsername}_${Math.floor(Math.random() * 10000)}`;
+
       user = await User.create({
-        username: name || email.split('@')[0],
+        username: uniqueUsername,
         email,
         google_id,
         role_id: userRole ? userRole.id : null
@@ -54,7 +57,8 @@ const googleLogin = async (req, res) => {
 
   } catch (error) {
     console.error('Google Login Error:', error);
-    res.status(401).json({ success: false, message: 'Invalid Google Token' });
+    const errorDetails = error.errors ? error.errors.map(e => e.message).join(', ') : error.message;
+    res.status(401).json({ success: false, message: 'Google Auth Error', details: errorDetails });
   }
 };
 
