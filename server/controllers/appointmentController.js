@@ -86,4 +86,42 @@ const addAppointmentReport = async (req, res) => {
   }
 };
 
-module.exports = { bookAppointment, getMyAppointments, updateAppointmentStatus, addAppointmentReport };
+const cancelAppointment = async (req, res) => {
+  try {
+    const appointment = await Appointment.findOne({ where: { id: req.params.id, user_id: req.user.id } });
+    if (!appointment) return res.status(404).json({ success: false, message: 'Appointment not found' });
+    if (appointment.status !== 'Pending') return res.status(400).json({ success: false, message: 'Only pending appointments can be cancelled' });
+    appointment.status = 'Cancelled';
+    await appointment.save();
+    res.json({ success: true, data: appointment });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const updateAppointment = async (req, res) => {
+  const { pet_id, doctor_id, appointment_date, reason } = req.body;
+  try {
+    const appointment = await Appointment.findOne({ where: { id: req.params.id, user_id: req.user.id } });
+    if (!appointment) return res.status(404).json({ success: false, message: 'Appointment not found' });
+    if (appointment.status !== 'Pending') return res.status(400).json({ success: false, message: 'Only pending appointments can be edited' });
+    await appointment.update({ pet_id, doctor_id, appointment_date, reason });
+    res.json({ success: true, data: appointment });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const deleteAppointment = async (req, res) => {
+  try {
+    const appointment = await Appointment.findOne({ where: { id: req.params.id, user_id: req.user.id } });
+    if (!appointment) return res.status(404).json({ success: false, message: 'Appointment not found' });
+    if (appointment.status !== 'Cancelled') return res.status(400).json({ success: false, message: 'Only cancelled appointments can be deleted' });
+    await appointment.destroy();
+    res.json({ success: true, message: 'Appointment deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { bookAppointment, getMyAppointments, updateAppointmentStatus, addAppointmentReport, updateAppointment, cancelAppointment, deleteAppointment };
