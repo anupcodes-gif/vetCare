@@ -56,6 +56,10 @@ const Toast = ({ toast, onClose }) => {
 const ConfirmDialog = ({ dialog, onClose }) => {
   const [inputValue, setInputValue] = useState(dialog.defaultValue || '');
 
+  React.useEffect(() => {
+    setInputValue(dialog.defaultValue || '');
+  }, [dialog]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
