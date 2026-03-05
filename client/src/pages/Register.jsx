@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
-import { motion } from 'framer-motion';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -11,15 +11,47 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
   const { register } = useAuth();
   const { toast } = useModal();
   const navigate = useNavigate();
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!username) {
+      newErrors.username = 'Username is required';
+    } else if (username.length < 3) {
+      newErrors.username = 'Username must be at least 3 characters';
+    }
+    
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Invalid email format';
+    }
+    
+    if (!password) {
+      newErrors.password = 'Password is required';
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
     const result = await register(username, email, password);
     setLoading(false);
+
     if (result.success) {
       navigate('/dashboard');
     } else {
@@ -32,32 +64,60 @@ const Register = () => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="glass-card" 
+        className={`glass-card`}
         style={{ padding: '40px', width: '100%', maxWidth: '400px' }}
       >
         <h2 style={{ marginBottom: '30px', textAlign: 'center' }}>Create Account</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '8px' }}>Username</label>
             <input 
               type="text" 
               value={username} 
-              onChange={(e) => setUsername(e.target.value)}
-              className="glass-card"
+              onChange={(e) => {
+                setUsername(e.target.value);
+                if (errors.username) setErrors(prev => ({ ...prev, username: null }));
+              }}
+              className={`glass-card ${errors.username ? 'input-error' : ''}`}
               style={{ width: '100%', padding: '12px', border: 'none', color: 'white', background: 'rgba(255,255,255,0.05)' }}
-              required
             />
+            <AnimatePresence>
+              {errors.username && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="error-text"
+                >
+                  <AlertCircle size={14} /> {errors.username}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '8px' }}>Email</label>
             <input 
               type="email" 
               value={email} 
-              onChange={(e) => setEmail(e.target.value)}
-              className="glass-card"
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (errors.email) setErrors(prev => ({ ...prev, email: null }));
+              }}
+              className={`glass-card ${errors.email ? 'input-error' : ''}`}
               style={{ width: '100%', padding: '12px', border: 'none', color: 'white', background: 'rgba(255,255,255,0.05)' }}
-              required
             />
+            <AnimatePresence>
+              {errors.email && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="error-text"
+                >
+                  <AlertCircle size={14} /> {errors.email}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           <div style={{ marginBottom: '30px' }}>
             <label style={{ display: 'block', marginBottom: '8px' }}>Password</label>
@@ -65,10 +125,12 @@ const Register = () => {
               <input 
                 type={showPassword ? "text" : "password"} 
                 value={password} 
-                onChange={(e) => setPassword(e.target.value)}
-                className="glass-card"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) setErrors(prev => ({ ...prev, password: null }));
+                }}
+                className={`glass-card ${errors.password ? 'input-error' : ''}`}
                 style={{ width: '100%', padding: '12px', paddingRight: '40px', border: 'none', color: 'white', background: 'rgba(255,255,255,0.05)' }}
-                required
               />
               <button
                 type="button"
@@ -89,6 +151,18 @@ const Register = () => {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
+            <AnimatePresence>
+              {errors.password && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="error-text"
+                >
+                  <AlertCircle size={14} /> {errors.password}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           <button 
             type="submit" 

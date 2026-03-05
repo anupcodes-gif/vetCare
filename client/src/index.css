@@ -375,3 +375,19 @@ html {
     gap: 30px;
   }
 }
+
+
+.input-error {
+  border: 1px solid rgba(239, 68, 68, 0.5) !important;
+  background: rgba(239, 68, 68, 0.05) !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.1);
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
